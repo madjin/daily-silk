@@ -1,0 +1,44 @@
+name: Deploy JSON Directory to GitHub Pages
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Daily Discord Fetch"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  pages-directory-listing:
+    runs-on: ubuntu-latest
+    name: Generate Directory Listing and Deploy
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Generate Directory Listings for data folder
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: data  # directory to generate index
+
+      # Setup and deploy to GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'data'  # upload the data folder
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
