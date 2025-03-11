@@ -1,38 +1,36 @@
 name: Daily Discord Fetch
-
 on:
   schedule:
     # Runs at 7:10 AM PST (14:10 UTC, since PST is UTC-7)
     - cron: '10 14 * * *'
   workflow_dispatch:  # Allows manual triggering
 
+# Add permissions block to grant write access
+permissions:
+  contents: write
+
 jobs:
   fetch-discord-data:
     runs-on: ubuntu-latest
-
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
-
       # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
       # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install discord.py
-
       # Run the script
       - name: Run Discord fetch script
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: python discord_fetch.py
-
       # Commit and push the output file
       - name: Commit and push data
         run: |
