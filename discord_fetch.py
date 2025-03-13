@@ -48,7 +48,6 @@ class DataManager:
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Add content_key to existing items
                 for item in data:
                     item["content_key"] = MessageParser.create_content_key(item)
                 print(f"Loaded {len(data)} existing entries from {filename}")
@@ -59,12 +58,26 @@ class DataManager:
     
     def save_data(self, filename: str, data: List[Dict]) -> None:
         os.makedirs(self.data_dir, exist_ok=True)
-        filepath = os.path.join(self.data_dir, filename)
-        output_data = [{"timestamp": item["timestamp"], "description": item["description"]} 
-                      for item in data]
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
-        print(f"Saved {len(data)} unique entries to {filepath}")
+        
+        # Save JSON
+        json_filepath = os.path.join(self.data_dir, filename)
+        json_data = [{"timestamp": item["timestamp"], "description": item["description"]} 
+                    for item in data]
+        with open(json_filepath, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, indent=2, ensure_ascii=False)
+        print(f"Saved {len(data)} unique entries to {json_filepath}")
+        
+        # Save Markdown
+        md_filename = os.path.splitext(filename)[0] + ".md"
+        md_filepath = os.path.join(self.data_dir, md_filename)
+        with open(md_filepath, "w", encoding="utf-8") as f:
+            # Add header with date
+            date_str = os.path.splitext(filename)[0]
+            f.write(f"# Daily Summary for {date_str}\n\n")
+            for item in data:
+                f.write(f"## {item['timestamp']}\n\n")
+                f.write(f"{item['description']}\n\n")
+        print(f"Exported {len(data)} entries to {md_filepath}")
 
 class DiscordFetcher:
     """Handles Discord interactions and message fetching"""
@@ -135,14 +148,14 @@ class DiscordFetcher:
         filtered = []
         seen_keys = set()
         for item in data:
-            # Ensure content_key exists (for older data without it)
             if "content_key" not in item:
                 item["content_key"] = MessageParser.create_content_key(item)
             if item["content_key"] not in seen_keys:
                 filtered.append(item)
                 seen_keys.add(item["content_key"])
         
-        filtered.sort(key=lambda x: x["timestamp"], reverse=True)
+        # Sort from start of day to end of day (earliest to latest)
+        filtered.sort(key=lambda x: x["timestamp"])  # Changed to ascending order
         removed = len(data) - len(filtered)
         if removed > 0:
             print(f"Filtered out {removed} duplicate entries")
