@@ -19,7 +19,7 @@ async def on_ready():
     messages_data = []
 
     if channel:
-        async for msg in channel.history(limit=10):
+        async for msg in channel.history(limit=15):
             for embed in msg.embeds:
                 embed_data = {
                     "timestamp": msg.created_at.isoformat(),
