@@ -36,7 +36,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add data/*.json
+          git add data/*.json data/*.md
           git commit -m "Add Discord data for $(date +%Y%m%d)" || echo "No changes to commit"
           git push
         env:
