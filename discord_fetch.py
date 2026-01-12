@@ -2,7 +2,7 @@ import discord
 import json
 import os
 import argparse
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 
 class Config:
@@ -104,8 +104,8 @@ class DiscordFetcher:
             return
         
         args = self._parse_args()
-        end_date = (datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=UTC) 
-                   if args.date else datetime.now(UTC))
+        end_date = (datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=timezone.utc) 
+                   if args.date else datetime.now(timezone.utc))
         start_date = end_date - timedelta(days=args.days - 1)  # Include end_date
         
         print(f"Fetching messages from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")

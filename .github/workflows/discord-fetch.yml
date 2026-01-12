@@ -1,8 +1,8 @@
 name: Daily Discord Fetch
 on:
   schedule:
-    # Runs at 7:10 AM PST (14:10 UTC, since PST is UTC-7)
-    - cron: '10 14 * * *'
+    # Runs at 11:15 AM EST (16:15 UTC) - after news posts at 11:01 AM EST
+    - cron: '15 16 * * *'
   workflow_dispatch:  # Allows manual triggering
 
 # Add permissions block to grant write access
